@@ -43,8 +43,8 @@ func (s *Service) GetShortLink(link string) (string, error) {
 	return "", nil
 }
 
-func generateShortLink() []rune {
-	shortLink := make([]rune, 10)
+func generateShortLink() []byte {
+	shortLink := make([]byte, 10)
 	//проверки
 	symbols := []string{
 		"abcdefghijklmnopqrstuvwxyz",
@@ -53,12 +53,12 @@ func generateShortLink() []rune {
 		"_",
 	}
 	checkSymbols := make([]bool, 4)
-	var symbol rune
+	var symbol byte
 	for i := range shortLink {
 		if i > 6 {
 			for j := range checkSymbols {
 				if checkSymbols[j] == false {
-					symbol = rune(symbols[j][rand.Intn(len(symbols[j]))])
+					symbol = symbols[j][rand.Intn(len(symbols[j]))]
 					break
 				}
 			}
@@ -71,7 +71,7 @@ func generateShortLink() []rune {
 	return shortLink
 }
 
-func generateSymbol(symbols []string, checkSymbols []bool) rune {
+func generateSymbol(symbols []string, checkSymbols []bool) byte {
 	var symbolType int
 	//выбрать что вставлять
 	if checkSymbols[3] {
@@ -84,5 +84,5 @@ func generateSymbol(symbols []string, checkSymbols []bool) rune {
 	//указываем что символ использован
 	checkSymbols[symbolType] = true
 	//выбираем символ
-	return rune(symbols[symbolType][rand.Intn(len(symbols[symbolType]))])
+	return symbols[symbolType][rand.Intn(len(symbols[symbolType]))]
 }
