@@ -1,11 +1,10 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"shortlink/internal/service"
 	"strings"
-
-	"github.com/gorilla/mux"
 )
 
 type Handler struct {
@@ -16,20 +15,22 @@ func NewHandler(service service.Services) *Handler {
 	return &Handler{service: service}
 }
 
-func (h *Handler) InitRouter() *mux.Router {
-	router := mux.NewRouter()
-
-	router.HandleFunc("/", h.shortLink).Methods("POST")
-	router.HandleFunc("/", h.getLink).Methods("GET").PathPrefix("/")
-
-	return router
-}
-
-func (h *Handler) getLink(w http.ResponseWriter, r *http.Request) {
+func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//вернутьь подсказку как пользаваться сервисом
 	if len(r.URL.Path) < 2 {
 		return
 	}
+	switch r.Method {
+	case "GET":
+		h.getLink(w, r)
+	case "POST":
+		h.shortLink(w, r)
+	default:
+		http.NotFound(w, r)
+	}
+}
+
+func (h *Handler) getLink(w http.ResponseWriter, r *http.Request) {
 	//Проверить ссылку на уникальность и вернуть ее или ошибку 404
 	link, err := h.service.GetLink(strings.Trim(r.URL.Path, "/"))
 	if err != nil {
@@ -41,5 +42,14 @@ func (h *Handler) getLink(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *Handler) shortLink(w http.ResponseWriter, r *http.Request) {
-
+	link, err := h.service.GetShortLink(strings.Trim(r.URL.Path, "/"))
+	//вывести ошибку что-то пошло не так
+	if err != nil {
+		return
+	}
+	_, err = fmt.Fprint(w, link)
+	//вывести ошибку что-то пошло не так
+	if err != nil {
+		return
+	}
 }

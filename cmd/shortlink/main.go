@@ -27,5 +27,5 @@ func main() {
 	services.DB = &postgres
 	handlers := handler.NewHandler(&services)
 	srv := server.Server{}
-	log.Fatal(srv.Run("8000", handlers.InitRouter()))
+	log.Fatal(srv.Run("8000", handlers))
 }

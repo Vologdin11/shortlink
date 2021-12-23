@@ -35,9 +35,9 @@ func (p *Postgres) InitPostgres(cfg *conf.Config) error {
 	return nil
 }
 
-func (p *Postgres) GetLink(ctx context.Context, shortLink string) (string, error) {
+func (p *Postgres) GetLink(shortLink string) (string, error) {
 	var link string
-	err := p.db.QueryRow(ctx, "SELECT link FROM shortlink WHERE shortlink=$1", shortLink).Scan(&link)
+	err := p.db.QueryRow(p.context, dbGetLink, shortLink).Scan(&link)
 	if err != nil {
 		return "", err
 	}
