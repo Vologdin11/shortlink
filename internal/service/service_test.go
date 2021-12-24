@@ -1,7 +1,6 @@
 package service
 
 import (
-	"fmt"
 	"shortlink/mocks/mock_repository"
 	"testing"
 
@@ -27,7 +26,6 @@ func TestGenerateShortLink(t *testing.T) {
 	shortLink := generateShortLink()
 	shortLink1 := generateShortLink()
 
-	fmt.Println(string(shortLink), string(shortLink1))
 	assert.Len(t, shortLink, 10)
 	assert.NotEqual(t, shortLink, shortLink1)
 }

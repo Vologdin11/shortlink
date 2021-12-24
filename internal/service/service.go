@@ -53,19 +53,17 @@ func generateShortLink() []byte {
 		"_",
 	}
 	checkSymbols := make([]bool, 4)
-	var symbol byte
+next:
 	for i := range shortLink {
 		if i > 6 {
 			for j := range checkSymbols {
-				if checkSymbols[j] == false {
-					symbol = symbols[j][rand.Intn(len(symbols[j]))]
-					break
+				if !checkSymbols[j] {
+					shortLink[i] = symbols[j][rand.Intn(len(symbols[j]))]
+					break next
 				}
 			}
-		} else {
-			symbol = generateSymbol(symbols, checkSymbols)
 		}
-		shortLink[i] = symbol
+		shortLink[i] = generateSymbol(symbols, checkSymbols)
 	}
 	//проверить что ссылка уникальна, иначе сгенерировать еще раз
 	return shortLink
