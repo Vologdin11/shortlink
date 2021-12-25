@@ -1,0 +1,14 @@
+version: "3.3"
+
+services:
+  shortlink:
+    image: shortlink:latest
+    container_name: shortlink
+    ports:
+      - "8000:8000"
+    environment:
+      - DB=${DB}
+    volumes:
+      - ./configs/dbconfig.yml:/configs/dbconfig.yml
+    restart: always
+    # network_mode: "host"

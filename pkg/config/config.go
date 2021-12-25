@@ -3,8 +3,8 @@ package postgres
 import (
 	"context"
 	"fmt"
-
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/spf13/viper"
 )
 
 type Config struct {
@@ -42,14 +42,24 @@ func NewConnection(poolConfig *pgxpool.Config) (*pgxpool.Pool, error) {
 	return connect, nil
 }
 
-func NewConfig(host, port, username, password, dbName string, timeout int, connections int32) *Config {
-	return &Config{
-		Host:        host,
-		Port:        port,
-		Username:    username,
-		Password:    password,
-		DbName:      dbName,
-		Timeout:     timeout,
-		Connections: connections,
+func NewConfig() (*Config, error) {
+	if err := InitConfig(); err != nil {
+		return nil, err
 	}
+	return &Config{
+			Host:        viper.GetString("host"),
+			Port:        viper.GetString("port"),
+			Username:    viper.GetString("username"),
+			Password:    viper.GetString("password"),
+			DbName:      viper.GetString("dbName"),
+			Timeout:     viper.GetInt("timeout"),
+			Connections: viper.GetInt32("connections"),
+		},
+		nil
+}
+
+func InitConfig() error {
+	viper.AddConfigPath("configs")
+	viper.SetConfigFile("configs/dbconfig.yml")
+	return viper.ReadInConfig()
 }

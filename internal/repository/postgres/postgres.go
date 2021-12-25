@@ -1,4 +1,4 @@
-package repository
+package postgres
 
 import (
 	"context"
@@ -7,7 +7,11 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
-const dbGetLink = "SELECT link FROM shortlink WHERE shortlink=$1"
+const (
+	dbGetLink      = "SELECT link FROM shortlink WHERE shortlink = $1"
+	dbGetShortLink = "SELECT shortlink FROM shortlink WHERE link = $1"
+	dbAddLink      = "INSERT INTO shortlink(link, shortlink) VALUES ($1, $2)"
+)
 
 type Postgres struct {
 	db      *pgxpool.Pool
@@ -45,9 +49,15 @@ func (p *Postgres) GetLink(shortLink string) (string, error) {
 }
 
 func (p *Postgres) GetShortLink(link string) (string, error) {
-	return "", nil
+	var shortlink string
+	err := p.db.QueryRow(p.context, dbGetShortLink, link).Scan(&shortlink)
+	if err != nil {
+		return "", err
+	}
+	return shortlink, nil
 }
 
-func (p *Postgres) AddLink(link string) error {
-	return nil
+func (p *Postgres) AddLink(link, shortlink string) error {
+	_, err := p.db.Exec(p.context, dbAddLink, link, shortlink)
+	return err
 }

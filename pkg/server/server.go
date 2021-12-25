@@ -1,6 +1,7 @@
 package server
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -13,5 +14,6 @@ func (s *Server) Run(port string, handler http.Handler) error {
 		Addr:    ":" + port,
 		Handler: handler,
 	}
+	log.Println("shortlink start on port: " + port)
 	return s.httpServer.ListenAndServe()
 }

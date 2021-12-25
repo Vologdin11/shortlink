@@ -47,7 +47,7 @@ func (h *Handler) shortLink(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		return
 	}
-	_, err = fmt.Fprint(w, link)
+	_, err = fmt.Fprint(w, "http://localhost:8000/"+link)
 	//вывести ошибку что-то пошло не так
 	if err != nil {
 		return

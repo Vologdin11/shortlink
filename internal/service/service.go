@@ -25,22 +25,30 @@ func (s *Service) GetLink(shortLink string) (string, error) {
 func (s *Service) GetShortLink(link string) (string, error) {
 	//Проверить уникальность ссылки
 	shortlink, err := s.DB.GetShortLink(link)
-	//проблема с БД
-	if err != nil {
-		return "", nil
-	}
 	//Не уникальна, вернуть ее сокращенную версию
-	if shortlink != "" {
+	if err == nil {
 		return shortlink, nil
 	}
-	//Уникальная сгенерировать сокращенную версию
 
+	for i := 0; i < 1000; i++ {
+		//Уникальная сгенерировать сокращенную версию
+		shortlink = string(generateShortLink())
+		//проверить что сгенерированная ссылка уникальна
+		_, err := s.DB.GetLink(shortlink)
+		//Укикальна остановить
+		if err != nil {
+			break
+		}
+	}
 	//добавить в БД
-
+	err = s.DB.AddLink(link, shortlink)
+	if err != nil {
+		return "", err
+	}
 	//вернуть
 	//задавать через переменные окружения добавить перед возвращением
 	//serviceUrl := "http://localhost:8000/"
-	return "", nil
+	return shortlink, nil
 }
 
 func generateShortLink() []byte {
@@ -52,27 +60,32 @@ func generateShortLink() []byte {
 		"0123456789",
 		"_",
 	}
-	checkSymbols := make([]bool, 4)
-next:
+	usedSymbols := make([]bool, 4)
 	for i := range shortLink {
-		if i > 6 {
-			for j := range checkSymbols {
-				if !checkSymbols[j] {
-					shortLink[i] = symbols[j][rand.Intn(len(symbols[j]))]
-					break next
-				}
-			}
+		//оптимихировать
+		if j, check := checkUnusedSymbols(usedSymbols); i > 6 && check {
+			shortLink[i] = symbols[j][rand.Intn(len(symbols[j]))]
+		} else {
+			shortLink[i] = generateSymbol(symbols, usedSymbols)
 		}
-		shortLink[i] = generateSymbol(symbols, checkSymbols)
 	}
 	//проверить что ссылка уникальна, иначе сгенерировать еще раз
 	return shortLink
 }
 
-func generateSymbol(symbols []string, checkSymbols []bool) byte {
+func checkUnusedSymbols(usedSymbols []bool) (int, bool) {
+	for i := range usedSymbols {
+		if !usedSymbols[i] {
+			return i, true
+		}
+	}
+	return 0, false
+}
+
+func generateSymbol(symbols []string, usedSymbols []bool) byte {
 	var symbolType int
 	//выбрать что вставлять
-	if checkSymbols[3] {
+	if usedSymbols[3] {
 		//выбрать из 3-х
 		symbolType = rand.Intn(3)
 	} else {
@@ -80,7 +93,7 @@ func generateSymbol(symbols []string, checkSymbols []bool) byte {
 		symbolType = rand.Intn(4)
 	}
 	//указываем что символ использован
-	checkSymbols[symbolType] = true
+	usedSymbols[symbolType] = true
 	//выбираем символ
 	return symbols[symbolType][rand.Intn(len(symbols[symbolType]))]
 }
