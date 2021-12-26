@@ -24,4 +24,4 @@ services:
       - ./sql/script.sql:/var/lib/postgressql/data/script.sql
     ports:
       - "5432:5432"
-    # command: ["psql --user postgres", "\\i var/lib/postgressql/data/script.sql"]
+    # command: ["psql --user postgres" "\\i var/lib/postgressql/data/script.sql"]
