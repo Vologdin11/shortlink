@@ -2,17 +2,18 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/golang/mock/gomock"
+	"github.com/stretchr/testify/assert"
 	"shortlink/mocks/mock_repository"
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestGenerateShortLink(t *testing.T) {
 	shortLink := generateShortLink()
 	shortLink1 := generateShortLink()
 
+	fmt.Println(string(shortLink), string(shortLink1))
 	assert.Len(t, shortLink, 10)
 	assert.NotEqual(t, shortLink, shortLink1)
 }
@@ -66,6 +67,7 @@ func TestGetShortLink(t *testing.T) {
 	})
 
 	t.Run("generate new shortlink", func(t *testing.T) {
+		//???!!!
 		mockRepository.EXPECT().GetShortLink("google.com").Return("", errors.New("no"))
 		mockRepository.EXPECT().GetLink("google.com").Return("", errors.New("no"))
 		mockRepository.EXPECT().AddLink("link", "shortlink").Return(nil)

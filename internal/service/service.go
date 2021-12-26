@@ -73,6 +73,7 @@ func generateShortLink() []byte {
 func checkUnusedSymbols(usedSymbols []bool) int {
 	for i := range usedSymbols {
 		if !usedSymbols[i] {
+			usedSymbols[i] = true
 			return i
 		}
 	}

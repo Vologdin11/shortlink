@@ -18,7 +18,7 @@ func TestGetlink(t *testing.T) {
 	testHandler := NewHandler(mockServices)
 
 	t.Run("link in db", func(t *testing.T) {
-		r, err := http.NewRequest("GET", "http://localhost:8080/", nil)
+		r, err := http.NewRequest("GET", "http://localhost:8080/yandex", nil)
 		require.NoError(t, err)
 		rw := httptest.NewRecorder()
 
@@ -55,21 +55,21 @@ func TestShortLink(t *testing.T) {
 
 		mockServices.EXPECT().GetShortLink(gomock.Any()).Return("qwerty", nil)
 
-		testHandler.shortLink(rw, r)
+		testHandler.getShortLink(rw, r)
 
 		assert.Equal(t, "http://localhost:8000/qwerty", rw.Body.String())
 	})
 
 	t.Run("error generate link", func(t *testing.T) {
-		r, err := http.NewRequest("POST", "http://localhost:8080/google.com/", nil)
+		r, err := http.NewRequest("POST", "http://localhost:8080/?url=google.com/", nil)
 		require.NoError(t, err)
 		rw := httptest.NewRecorder()
 
 		mockServices.EXPECT().GetShortLink(gomock.Any()).Return("", errors.New("no link"))
 
-		testHandler.getLink(rw, r)
+		testHandler.getShortLink(rw, r)
 
-		assert.Equal(t, "404 page not found\n", rw.Body.String())
-		assert.Equal(t, http.StatusNotFound, rw.Result().StatusCode)
+		assert.Equal(t, "\n", rw.Body.String())
+		assert.Equal(t, http.StatusInternalServerError, rw.Result().StatusCode)
 	})
 }
