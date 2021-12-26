@@ -18,10 +18,8 @@ services:
     image: postgres:latest
     container_name: postgres
     environment:
-      - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=qweasd
     volumes:
-      - ./sql/script.sql:/var/lib/postgressql/data/script.sql
+      - ./sql/script.sql:/docker-entrypoint-initdb.d/10-init.sql
     ports:
       - "5432:5432"
-    # command: ["psql --user postgres" "\\i var/lib/postgressql/data/script.sql"]
