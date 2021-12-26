@@ -45,51 +45,46 @@ func (s *Service) GetShortLink(link string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	//вернуть
-	//задавать через переменные окружения добавить перед возвращением
-	//serviceUrl := "http://localhost:8000/"
+
 	return shortlink, nil
 }
 
 func generateShortLink() []byte {
 	shortLink := make([]byte, 10)
-	//проверки
+	usedSymbols := make([]bool, 4)
 	symbols := []string{
 		"abcdefghijklmnopqrstuvwxyz",
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
 		"0123456789",
 		"_",
 	}
-	usedSymbols := make([]bool, 4)
+
 	for i := range shortLink {
-		//оптимихировать
-		if j, check := checkUnusedSymbols(usedSymbols); i > 6 && check {
-			shortLink[i] = symbols[j][rand.Intn(len(symbols[j]))]
-		} else {
+		if i < 7 {
 			shortLink[i] = generateSymbol(symbols, usedSymbols)
+		} else {
+			unusedSymbols := checkUnusedSymbols(usedSymbols)
+			shortLink[i] = symbols[unusedSymbols][rand.Intn(len(symbols[unusedSymbols]))]
 		}
 	}
-	//проверить что ссылка уникальна, иначе сгенерировать еще раз
 	return shortLink
 }
 
-func checkUnusedSymbols(usedSymbols []bool) (int, bool) {
+func checkUnusedSymbols(usedSymbols []bool) int {
 	for i := range usedSymbols {
 		if !usedSymbols[i] {
-			return i, true
+			return i
 		}
 	}
-	return 0, false
+	return 0
 }
 
 func generateSymbol(symbols []string, usedSymbols []bool) byte {
 	var symbolType int
 	//выбрать что вставлять
 	if usedSymbols[3] {
-		//выбрать из 3-х
 		symbolType = rand.Intn(3)
 	} else {
-		//выбрать из всех
 		symbolType = rand.Intn(4)
 	}
 	//указываем что символ использован

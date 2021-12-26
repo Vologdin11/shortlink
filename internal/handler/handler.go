@@ -16,10 +16,10 @@ func NewHandler(service service.Services) *Handler {
 }
 
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//вернутьь подсказку как пользаваться сервисом
 	if len(r.URL.Path) < 2 {
 		return
 	}
+
 	switch r.Method {
 	case "GET":
 		h.getLink(w, r)
@@ -37,12 +37,12 @@ func (h *Handler) getLink(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	//Если ошибки нет сделать редирект по ссылке
+
 	http.Redirect(w, r, link, http.StatusPermanentRedirect)
 }
 
 func (h *Handler) shortLink(w http.ResponseWriter, r *http.Request) {
-	link, err := h.service.GetShortLink(strings.Trim(r.URL.Path, "/"))
+	link, err := h.service.GetShortLink(strings.Trim(r.URL.Query().Get("url"), "/"))
 	//вывести ошибку что-то пошло не так
 	if err != nil {
 		return
