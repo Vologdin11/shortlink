@@ -1,8 +1,9 @@
 version: "3.3"
 
 services:
+  
   shortlink:
-    image: shortlink:latest
+    image: shortlink:v1.0.0
     container_name: shortlink
     ports:
       - "8000:8000"
@@ -11,4 +12,14 @@ services:
     volumes:
       - ./configs/dbconfig.yml:/configs/dbconfig.yml
     restart: always
-    # network_mode: "host"
+    network_mode: "host"
+
+  postgres:
+    image: postgres:latest
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=qweasd
+    volumes:
+      - ./sql/script.sql:/var/lib/postgressql/data
+    ports:
+      - "5432:5432"
