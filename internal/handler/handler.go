@@ -16,7 +16,8 @@ func NewHandler(service service.Services) *Handler {
 }
 
 func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	if len(r.URL.Path) < 2 {
+	if len(r.URL.Path) < 2 || r.URL.Query().Get("url") == "" {
+		http.Error(w, "no path or query", http.StatusBadRequest)
 		return
 	}
 
@@ -26,7 +27,7 @@ func (h Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "POST":
 		h.shortLink(w, r)
 	default:
-		http.NotFound(w, r)
+		http.Error(w, "", http.StatusMethodNotAllowed)
 	}
 }
 
