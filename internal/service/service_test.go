@@ -1,26 +1,13 @@
 package service
 
 import (
+	"errors"
+	"github.com/golang/mock/gomock"
 	"shortlink/mocks/mock_repository"
 	"testing"
 
-	"github.com/golang/mock/gomock"
 	"github.com/stretchr/testify/assert"
 )
-
-func TestGetLink(t *testing.T) {
-	mockController := gomock.NewController(t)
-	defer mockController.Finish()
-
-	mockRepository := mock_repository.NewMockRepository(mockController)
-	mockRepository.EXPECT().GetLink("google.com").Return("qweasd55_W", nil)
-
-	service := Service{DB: mockRepository}
-	link, err := service.GetLink("google.com")
-
-	assert.NoError(t, err)
-	assert.Equal(t, "qweasd55_W", link)
-}
 
 func TestGenerateShortLink(t *testing.T) {
 	shortLink := generateShortLink()
@@ -35,4 +22,58 @@ func BenchmarkGenerateShortLink(b *testing.B) {
 		generateShortLink()
 	}
 	b.ReportAllocs()
+}
+
+func TestGetLink(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockRepository := mock_repository.NewMockRepository(mockController)
+	defer mockController.Finish()
+
+	t.Run("got link", func(t *testing.T) {
+		mockRepository.EXPECT().GetLink("google.com").Return("qweasd55_W", nil)
+
+		service := Service{DB: mockRepository}
+		link, err := service.GetLink("google.com")
+
+		assert.NoError(t, err)
+		assert.Equal(t, "qweasd55_W", link)
+	})
+
+	t.Run("no link", func(t *testing.T) {
+		mockRepository.EXPECT().GetLink("google.com").Return("", errors.New("link not found"))
+
+		service := Service{DB: mockRepository}
+		link, err := service.GetLink("google.com")
+
+		assert.Error(t, err)
+		assert.Equal(t, "", link)
+	})
+}
+
+func TestGetShortLink(t *testing.T) {
+	mockController := gomock.NewController(t)
+	mockRepository := mock_repository.NewMockRepository(mockController)
+	defer mockController.Finish()
+
+	t.Run("link in db", func(t *testing.T) {
+		mockRepository.EXPECT().GetShortLink("google.com").Return("asdfqwe", nil)
+
+		service := Service{DB: mockRepository}
+		link, err := service.GetShortLink(("google.com"))
+
+		assert.NoError(t, err)
+		assert.Equal(t, "asdfqwe", link)
+	})
+
+	t.Run("generate new shortlink", func(t *testing.T) {
+		mockRepository.EXPECT().GetShortLink("google.com").Return("", errors.New("no"))
+		mockRepository.EXPECT().GetLink("google.com").Return("", errors.New("no"))
+		mockRepository.EXPECT().AddLink("link", "shortlink").Return(nil)
+
+		service := Service{DB: mockRepository}
+		link, err := service.GetShortLink("google.com")
+
+		assert.NoError(t, err)
+		assert.NotEqual(t, "", link)
+	})
 }
